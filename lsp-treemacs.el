@@ -275,13 +275,14 @@ this hook will be run after having jumped to the target."
                                      :ret-action lsp-treemacs-symbols-goto-symbol)))
                         current))
            (seq-map
-            (-lambda ((sym &as &DocumentSymbol :name :kind :selection-range
+            (-lambda ((sym &as &DocumentSymbol :name :kind :range :selection-range
                            (&Range :start start-range) :children?))
               `(:label ,(lsp-render-symbol sym lsp-treemacs-detailed-outline)
                        :key ,name
                        :icon ,(lsp-treemacs-symbol-kind->icon kind)
                        :kind ,kind
                        :location ,start-range
+                       :range ,range
                        ,@(unless (seq-empty-p children?)
                            (list :children (lsp-treemacs--symbols->tree children? name)))
                        :ret-action lsp-treemacs-symbols-goto-symbol))
@@ -301,6 +302,7 @@ this hook will be run after having jumped to the target."
    lsp-treemacs-symbols-buffer-name ))
 
 (defun lsp-treemacs--update ()
+  ;; (message "update")
   (unless (eq (current-buffer) (get-buffer "*scratch*"))
     (when (with-current-buffer lsp-treemacs-symbols-buffer-name (get-buffer-window))
       (if (lsp--find-workspaces-for "textDocument/documentSymbol")
@@ -1073,6 +1075,8 @@ With prefix 2 show both."
 (defun lsp-treemacs--match-diagnostic-severity (diagnostic)
   (<= (lsp:diagnostic-severity? diagnostic)
       (prefix-numeric-value lsp-treemacs-error-list-severity)))
+
+(require 'lsp-treemacs-symbols)
 
 (provide 'lsp-treemacs)
 ;;; lsp-treemacs.el ends here
